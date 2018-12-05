@@ -7,7 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"v2ray.com/core/common"
 	"v2ray.com/core/testing/servers/tcp"
+	"v2ray.com/core/transport/internet"
 	. "v2ray.com/core/transport/internet/tcp"
 	. "v2ray.com/ext/assert"
 )
@@ -20,7 +22,9 @@ func TestGetOriginalDestination(t *testing.T) {
 	assert(err, IsNil)
 	defer tcpServer.Close()
 
-	conn, err := Dial(context.Background(), dest)
+	config, err := internet.ToMemoryStreamConfig(nil)
+	common.Must(err)
+	conn, err := Dial(context.Background(), dest, config)
 	assert(err, IsNil)
 	defer conn.Close()
 

@@ -2,8 +2,8 @@ package localdns
 
 import (
 	"context"
-	"net"
 
+	"v2ray.com/core/common/net"
 	"v2ray.com/core/features/dns"
 )
 
@@ -36,6 +36,7 @@ func (c *Client) LookupIP(host string) ([]net.IP, error) {
 	return ips, nil
 }
 
+// LookupIPv4 implements IPv4Lookup.
 func (c *Client) LookupIPv4(host string) ([]net.IP, error) {
 	ips, err := c.LookupIP(host)
 	if err != nil {
@@ -43,13 +44,15 @@ func (c *Client) LookupIPv4(host string) ([]net.IP, error) {
 	}
 	var ipv4 []net.IP
 	for _, ip := range ips {
-		if len(ip) == net.IPv4len {
-			ipv4 = append(ipv4, ip)
+		parsed := net.IPAddress(ip)
+		if parsed.Family().IsIPv4() {
+			ipv4 = append(ipv4, parsed.IP())
 		}
 	}
 	return ipv4, nil
 }
 
+// LookupIPv6 implements IPv6Lookup.
 func (c *Client) LookupIPv6(host string) ([]net.IP, error) {
 	ips, err := c.LookupIP(host)
 	if err != nil {
@@ -57,13 +60,15 @@ func (c *Client) LookupIPv6(host string) ([]net.IP, error) {
 	}
 	var ipv6 []net.IP
 	for _, ip := range ips {
-		if len(ip) == net.IPv6len {
-			ipv6 = append(ipv6, ip)
+		parsed := net.IPAddress(ip)
+		if parsed.Family().IsIPv6() {
+			ipv6 = append(ipv6, parsed.IP())
 		}
 	}
 	return ipv6, nil
 }
 
+// New create a new dns.Client that queries localhost for DNS.
 func New() *Client {
 	return &Client{
 		resolver: net.Resolver{
